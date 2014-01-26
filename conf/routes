@@ -5,5 +5,13 @@
 # Home page
 GET     /                           controllers.Application.index
 
+# API REST
+
+PUT     /api/blobs                  controllers.api.rest.Blobs.create
+POST    /api/blobs                  controllers.api.rest.Blobs.update
+DELETE  /api/blobs/:id              controllers.api.rest.Blobs.deleteById(id:Long)
+GET     /api/blobs                  controllers.api.rest.Blobs.findAll
+GET     /api/blobs/:id              controllers.api.rest.Blobs.findById(id:Long)
+
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

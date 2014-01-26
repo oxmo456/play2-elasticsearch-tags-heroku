@@ -1,0 +1,23 @@
+<div class="row">
+    <button ng-click="createBlob()"
+            class="btn btn-info">create
+    </button>
+    <table class="table table-hover">
+        <thead>
+        <td class="col-lg-1">Id</td>
+        <td>name</td>
+        <td class="col-lg-1"></td>
+        </thead>
+        <tbody>
+        <tr ng-repeat="blob in blobs">
+            <td>{{blob.id}}</td>
+            <td>{{blob.name}}</td>
+            <td>
+                <span ng-click="edit(blob)"
+                      style="cursor: pointer"
+                      class="glyphicon glyphicon-edit"></span>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>

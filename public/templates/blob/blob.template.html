@@ -1,0 +1,17 @@
+<div class="row">
+    <div class="form-group">
+        <label>Id</label>
+        <input ng-model="blob.id"
+               ng-disabled="true"
+               type="text"
+               class="form-control disabled">
+        <label for="name">Name</label>
+        <input ng-model="blob.name"
+               type="text"
+               class="form-control"
+               id="name"
+               placeholder="name">
+    </div>
+    <button class="btn btn-default" ng-click="save(blob)">Save</button>
+    <button class="btn btn-danger" ng-click="delete(blob)">Delete</button>
+</div>

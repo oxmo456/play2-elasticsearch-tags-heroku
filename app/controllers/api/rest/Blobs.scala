@@ -37,7 +37,7 @@ object Blobs extends Controller {
       request.body.asJson.map {
         json => {
           json.validate[Blob].map {
-            case blob@Blob(id, name) => {
+            case blob@Blob(id, name, tags) => {
               Blob.save(blob) match {
                 case 1 => Ok("")
                 case _ => NotFound("")

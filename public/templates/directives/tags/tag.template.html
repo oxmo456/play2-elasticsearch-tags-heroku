@@ -1,0 +1,13 @@
+<div class="tags">
+    <ul class="list-unstyled">
+        <li ng-repeat="tag in tags">
+            <span class="tag-label">{{tag[tagNameKey]}}</span>
+            <span ng-click="delete($index)"
+                  class="close">&times;</span>
+        </li>
+        <input on-key-up="addTag(tagName);tagName=null" key-code="13"
+               ng-model="tagName"
+               type="text"
+               placeholder="add tags"/>
+    </ul>
+</div>

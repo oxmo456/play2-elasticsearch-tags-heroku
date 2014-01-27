@@ -15,11 +15,11 @@ import utils.PkFormat
 import scala.util.Random
 import play.api.Logger
 
-case class Blob(id: Pk[Long], name: String)
+case class Blob(id: Pk[Long], name: String, tags: Set[Tag] = Set.empty)
 
 object Blob {
 
-  implicit object SearchFormat extends Format[Blob] {
+  implicit object BlobFormat extends Format[Blob] {
 
     private def extractId(blob: Blob): JsValue = {
       blob.id match {
@@ -35,7 +35,8 @@ object Blob {
 
     def writes(blob: Blob): JsValue = JsObject(Seq(
       "id" -> extractId(blob),
-      "name" -> JsString(blob.name)
+      "name" -> JsString(blob.name),
+      "tags" -> JsArray()
     ))
 
   }

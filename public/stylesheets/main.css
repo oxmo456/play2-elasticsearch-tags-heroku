@@ -1,3 +1,13 @@
+.play2-mode{
+    position: fixed;
+    top: 0;
+    left: 0;
+    padding: 2px;
+    opacity: 0.5;
+    text-transform: lowercase;
+    font-size: 9px;
+}
+
 .tags {
     padding: 3px 12px 6px 6px;
     display: block;

@@ -54,10 +54,7 @@ object Blob {
   }
 
   def save(blob: Blob): Int = {
-
     //TODO check if blob exists...
-    Logger.logger.debug(blob.toString)
-
     DB.withConnection {
       implicit connection =>
         SQL( """

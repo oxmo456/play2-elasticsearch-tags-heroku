@@ -30,7 +30,8 @@ object Blob {
 
     def reads(json: JsValue): JsResult[Blob] = JsSuccess(Blob(
       (json \ "id").as[Pk[Long]],
-      (json \ "name").as[String]
+      (json \ "name").as[String],
+      (json \ "tags").as[Set[Tag]]
     ))
 
     def writes(blob: Blob): JsValue = JsObject(Seq(
@@ -53,8 +54,34 @@ object Blob {
   }
 
   def save(blob: Blob): Int = {
+
+    //TODO check if blob exists...
+    Logger.logger.debug(blob.toString)
+
     DB.withConnection {
       implicit connection =>
+        SQL( """
+              DELETE FROM blobs_tags
+              WHERE blob_id = {blobId}
+             """).on('blobId -> blob.id).execute()
+
+        val tags = blob.tags.map(tag => {
+          SQL( """
+              WITH a AS (SELECT * FROM tags WHERE name = {name}),
+              b AS (INSERT INTO tags (name) SELECT {name} WHERE NOT EXISTS (SELECT 1 FROM a) RETURNING *)
+              SELECT * FROM a UNION ALL SELECT * FROM b
+               """).on('name -> tag.name).as(Tag.tagRowParser.singleOpt)
+        }).flatten
+
+
+        (SQL( """
+              INSERT INTO blobs_tags (blob_id,tag_id) VALUES ({blobId},{tagId})
+              """).asBatch /: tags) {
+          (sql, tag) => {
+            sql.addBatch("blobId" -> blob.id, "tagId" -> tag.id)
+          }
+        }.execute()
+
         SQL( """
               UPDATE blobs SET
               name = {name}
@@ -83,16 +110,49 @@ object Blob {
   def findAll(): Seq[Blob] = {
     DB.withConnection {
       implicit connection =>
+
+
+
         SQL("SELECT * from blobs").as(blobRowParser *)
     }
+  }
+
+  val rowParser = get[Long]("id") ~
+    get[String]("name") ~
+    get[Option[Long]]("tagId") ~
+    get[Option[String]]("tagName") map {
+    case id ~ name ~ Some(tagId) ~ Some(tagName) => ((id, name), Some(tagId, tagName))
+    case id ~ name ~ None ~ None => ((id, name), None)
+
   }
 
   def findById(id: Long): Option[Blob] = {
     DB.withConnection {
       implicit connection =>
-        SQL("SELECT * from blobs WHERE id = {id}")
-          .on('id -> id)
-          .as(blobRowParser.singleOpt)
+
+        SQL( """
+              SELECT
+              blobs.id as id,
+              blobs.name as name,
+              tags.id as tagId,
+              tags.name as tagName
+              FROM blobs
+              LEFT JOIN blobs_tags ON blobs_tags.blob_id = blobs.id
+              LEFT JOIN tags ON tags.id = blobs_tags.tag_id
+              WHERE blobs.id = {blobId}
+             """).on("blobId" -> id).as(rowParser *).groupBy(_._1).map(a => {
+          (a._1, a._2.map(_._2))
+        }).map(a => {
+          Blob(Id(a._1._1), a._1._2, a._2.flatten.map(a => {
+            Tag(Id(a._1), a._2)
+          }).toSet)
+        }).headOption
+
+      /*
+      SQL("SELECT * from blobs WHERE id = {id}")
+        .on('id -> id)
+        .as(blobRowParser.singleOpt)
+      */
     }
   }
 

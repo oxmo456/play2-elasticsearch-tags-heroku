@@ -34,7 +34,7 @@ object Tag {
 
   }
 
-  private val tagRowParser = {
+  val tagRowParser = {
     get[Pk[Long]]("id") ~
       get[String]("name") map {
       case id ~ name => Tag(id, name)

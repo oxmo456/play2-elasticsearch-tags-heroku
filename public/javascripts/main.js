@@ -105,7 +105,7 @@ angular.module("app").controller("BlobController", function ($scope, $location, 
 
     $scope.save = function (blob) {
         BlobService.save(blob).then(function () {
-
+            updateBlob($scope);
         });
     };
 

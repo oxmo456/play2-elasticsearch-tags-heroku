@@ -1,4 +1,4 @@
-.play2-mode{
+.play2-mode {
     position: fixed;
     top: 0;
     left: 0;
@@ -6,6 +6,21 @@
     opacity: 0.5;
     text-transform: lowercase;
     font-size: 9px;
+}
+
+.tag {
+    display: inline-block;
+    color: #fff;
+    padding: 4px;
+    margin-right: 2px;
+    margin-top: 2px;
+    background-color: #428bca;
+    border-radius: 4px;
+}
+
+.tag.more {
+    background-color: transparent;
+    color: #898989;
 }
 
 .tags {

@@ -5,13 +5,18 @@
     <table class="table table-hover">
         <thead>
         <td class="col-lg-1">Id</td>
-        <td>name</td>
+        <td class="col-lg-3">name</td>
+        <td>tags</td>
         <td class="col-lg-1"></td>
         </thead>
         <tbody>
         <tr ng-repeat="blob in blobs">
             <td>{{blob.id}}</td>
             <td>{{blob.name}}</td>
+            <td>
+                <div ng-repeat="tag in blob.tags | limitTo:5" class="tag">{{tag.name}}</div>
+                <div ng-if="blob.tags.length > 5" class="tag more">{{blob.tags.length - 5}} more tags</div>
+            </td>
             <td>
                 <span ng-click="edit(blob)"
                       style="cursor: pointer"

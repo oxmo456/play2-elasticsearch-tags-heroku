@@ -15,7 +15,11 @@ import utils.PkFormat
 import scala.util.Random
 import play.api.Logger
 
-case class Blob(id: Pk[Long], name: String, tags: Set[Tag] = Set.empty)
+case class Blob(id: Pk[Long], name: String, tags: Set[Tag] = Set.empty) {
+
+  def setTags(tags: Set[Tag]): Blob = Blob(id, name, tags)
+
+}
 
 object Blob {
 
@@ -107,49 +111,42 @@ object Blob {
   def findAll(): Seq[Blob] = {
     DB.withConnection {
       implicit connection =>
-
-
-
-        SQL("SELECT * from blobs").as(blobRowParser *)
+        SQL("SELECT * from blobs").as(blobRowParser *).map(blob => {
+          blob.setTags(
+            SQL( """
+                   SELECT
+                   tags.id AS id,
+                   tags.name AS name
+                   FROM tags
+                   LEFT JOIN blobs_tags ON blobs_tags.tag_id = tags.id
+                   WHERE blobs_tags.blob_id = {blobId}
+                 """).on('blobId -> blob.id).as(Tag.tagRowParser *).toSet
+          )
+        })
     }
   }
 
-  val rowParser = get[Long]("id") ~
-    get[String]("name") ~
-    get[Option[Long]]("tagId") ~
-    get[Option[String]]("tagName") map {
-    case id ~ name ~ Some(tagId) ~ Some(tagName) => ((id, name), Some(tagId, tagName))
-    case id ~ name ~ None ~ None => ((id, name), None)
-
-  }
 
   def findById(id: Long): Option[Blob] = {
     DB.withConnection {
       implicit connection =>
 
-        SQL( """
-              SELECT
-              blobs.id as id,
-              blobs.name as name,
-              tags.id as tagId,
-              tags.name as tagName
-              FROM blobs
-              LEFT JOIN blobs_tags ON blobs_tags.blob_id = blobs.id
-              LEFT JOIN tags ON tags.id = blobs_tags.tag_id
-              WHERE blobs.id = {blobId}
-             """).on("blobId" -> id).as(rowParser *).groupBy(_._1).map(a => {
-          (a._1, a._2.map(_._2))
-        }).map(a => {
-          Blob(Id(a._1._1), a._1._2, a._2.flatten.map(a => {
-            Tag(Id(a._1), a._2)
-          }).toSet)
-        }).headOption
+        SQL("SELECT * from blobs WHERE id = {id}")
+          .on('id -> id)
+          .as(blobRowParser.singleOpt).map(blob => {
+          blob.setTags(
+            SQL( """
+                   SELECT
+                   tags.id AS id,
+                   tags.name AS name
+                   FROM tags
+                   LEFT JOIN blobs_tags ON blobs_tags.tag_id = tags.id
+                   WHERE blobs_tags.blob_id = {blobId}
+                 """).on('blobId -> id).as(Tag.tagRowParser *).toSet
+          )
 
-      /*
-      SQL("SELECT * from blobs WHERE id = {id}")
-        .on('id -> id)
-        .as(blobRowParser.singleOpt)
-      */
+        })
+
     }
   }
 

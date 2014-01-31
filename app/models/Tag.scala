@@ -48,5 +48,19 @@ object Tag {
     }
   }
 
+  def findByBlobId(id: Long): Set[Tag] = {
+    DB.withConnection {
+      implicit connection =>
+        SQL( """
+                   SELECT
+                   tags.id AS id,
+                   tags.name AS name
+                   FROM tags
+                   LEFT JOIN blobs_tags ON blobs_tags.tag_id = tags.id
+                   WHERE blobs_tags.blob_id = {blobId}
+             """).on('blobId -> id).as(tagRowParser *).toSet
+    }
+  }
+
 
 }

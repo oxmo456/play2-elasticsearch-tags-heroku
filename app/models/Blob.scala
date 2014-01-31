@@ -50,44 +50,40 @@ object Blob {
     java.lang.Long.toString(Random.nextLong(), 26)
   }
 
+
   private val blobRowParser = {
     get[Pk[Long]]("id") ~
       get[String]("name") map {
-      case id ~ name => Blob(id, name)
+      case (id@Id(idValue)) ~ name => {
+        Blob(id, name, Tag.findByBlobId(idValue))
+      }
     }
   }
 
   def save(blob: Blob): Int = {
     //TODO check if blob exists...
-    DB.withConnection {
+
+    DB.withTransaction {
       implicit connection =>
+
         SQL( """
               DELETE FROM blobs_tags
               WHERE blob_id = {blobId}
-             """).on('blobId -> blob.id).execute()
+             """).on('blobId -> blob.id).executeUpdate()
 
-        val tags = blob.tags.map(tag => {
+        blob.tags.foreach(tag => {
           SQL( """
-              WITH a AS (SELECT * FROM tags WHERE name = {name}),
-              b AS (INSERT INTO tags (name) SELECT {name} WHERE NOT EXISTS (SELECT 1 FROM a) RETURNING *)
-              SELECT * FROM a UNION ALL SELECT * FROM b
-               """).on('name -> tag.name).as(Tag.tagRowParser.singleOpt)
-        }).flatten
-
-
-        (SQL( """
-              INSERT INTO blobs_tags (blob_id,tag_id) VALUES ({blobId},{tagId})
-              """).asBatch /: tags) {
-          (sql, tag) => {
-            sql.addBatch("blobId" -> blob.id, "tagId" -> tag.id)
-          }
-        }.execute()
-
+                 WITH a AS (SELECT id FROM tags WHERE name = {name}),
+                 b AS (INSERT INTO tags (name) SELECT {name} WHERE NOT EXISTS (SELECT 1 FROM a) RETURNING *)
+                 INSERT INTO blobs_tags (blob_id,tag_id) VALUES ({blobId}, (SELECT id FROM a UNION ALL SELECT id FROM b) );
+               """).on('name -> tag.name, 'blobId -> blob.id).executeUpdate()
+        })
         SQL( """
               UPDATE blobs SET
               name = {name}
               WHERE id = {id}
              """).on('name -> blob.name, 'id -> blob.id).executeUpdate()
+
     }
   }
 
@@ -111,18 +107,7 @@ object Blob {
   def findAll(): Seq[Blob] = {
     DB.withConnection {
       implicit connection =>
-        SQL("SELECT * from blobs").as(blobRowParser *).map(blob => {
-          blob.setTags(
-            SQL( """
-                   SELECT
-                   tags.id AS id,
-                   tags.name AS name
-                   FROM tags
-                   LEFT JOIN blobs_tags ON blobs_tags.tag_id = tags.id
-                   WHERE blobs_tags.blob_id = {blobId}
-                 """).on('blobId -> blob.id).as(Tag.tagRowParser *).toSet
-          )
-        })
+        SQL("SELECT * from blobs").as(blobRowParser *)
     }
   }
 
@@ -133,20 +118,7 @@ object Blob {
 
         SQL("SELECT * from blobs WHERE id = {id}")
           .on('id -> id)
-          .as(blobRowParser.singleOpt).map(blob => {
-          blob.setTags(
-            SQL( """
-                   SELECT
-                   tags.id AS id,
-                   tags.name AS name
-                   FROM tags
-                   LEFT JOIN blobs_tags ON blobs_tags.tag_id = tags.id
-                   WHERE blobs_tags.blob_id = {blobId}
-                 """).on('blobId -> id).as(Tag.tagRowParser *).toSet
-          )
-
-        })
-
+          .as(blobRowParser.singleOpt)
     }
   }
 

@@ -32,24 +32,15 @@ object Blobs extends Controller {
     }).getOrElse(NotFound(""))
   }
 
-  def update() = Action {
+  def update() = Action(parse.json) {
     request =>
-      request.body.asJson.map {
-        json => {
-          json.validate[Blob].map {
-            case blob@Blob(id, name, tags) => {
-              Blob.save(blob) match {
-                case 1 => Ok("")
-                case _ => NotFound("")
-              }
-
-            }
-          }.recoverTotal {
-            e => BadRequest(e.toString)
-          }
+      request.body.validate[Blob].map {
+        Blob.save(_) match {
+          case 1 => Ok("")
+          case _ => NotFound("")
         }
-      }.getOrElse {
-        BadRequest("")
+      }.recoverTotal {
+        e => BadRequest(e.toString)
       }
   }
 
@@ -59,6 +50,5 @@ object Blobs extends Controller {
       case _ => NotFound("")
     }
   }
-
 
 }

@@ -105,10 +105,6 @@ angular.module("app").controller("BlobsController", function BlobsController($sc
 angular.module("app").controller("BlobController", function ($scope, $location, $routeParams, BlobService) {
 
     $scope.save = function (blob) {
-        var k = 4;
-        while (k--) {
-            BlobService.save(blob);
-        }
         BlobService.save(blob).then(function () {
             updateBlob($scope);
         });

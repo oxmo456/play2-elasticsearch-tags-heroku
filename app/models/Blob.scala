@@ -13,7 +13,6 @@ import play.api.libs.json.JsString
 import play.api.libs.json.JsNumber
 import utils.PkFormat
 import scala.util.Random
-import play.api.Logger
 
 case class Blob(id: Pk[Long], name: String, tags: Set[Tag] = Set.empty) {
 
@@ -60,12 +59,16 @@ object Blob {
     }
   }
 
-  def save(blob: Blob): Int = {
-    //TODO check if blob exists...
+  private val blobIdRowParser = {
+    get[Pk[Long]]("id") map {
+      case Id(id) => id
+    }
+  }
 
+  def save(blob: Blob): Int = {
+    //no need to check if blob exists
     DB.withTransaction {
       implicit connection =>
-
         SQL( """
               DELETE FROM blobs_tags
               WHERE blob_id = {blobId}
@@ -78,12 +81,12 @@ object Blob {
                  INSERT INTO blobs_tags (blob_id,tag_id) VALUES ({blobId}, (SELECT id FROM a UNION ALL SELECT id FROM b) );
                """).on('name -> tag.name, 'blobId -> blob.id).executeUpdate()
         })
+
         SQL( """
               UPDATE blobs SET
               name = {name}
               WHERE id = {id}
              """).on('name -> blob.name, 'id -> blob.id).executeUpdate()
-
     }
   }
 
@@ -115,7 +118,6 @@ object Blob {
   def findById(id: Long): Option[Blob] = {
     DB.withConnection {
       implicit connection =>
-
         SQL("SELECT * from blobs WHERE id = {id}")
           .on('id -> id)
           .as(blobRowParser.singleOpt)

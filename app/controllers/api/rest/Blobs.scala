@@ -2,11 +2,9 @@ package controllers.api.rest
 
 import play.api.mvc.{Action, Controller}
 import models.Blob
-import play.api.Logger._
 import utils._
 
-import play.api.libs.json.{JsBoolean, JsNumber, Json}
-import play.api.Logger
+import play.api.libs.json.{JsNumber, Json}
 
 object Blobs extends Controller {
 
@@ -35,9 +33,9 @@ object Blobs extends Controller {
   def update() = Action(parse.json) {
     request =>
       request.body.validate[Blob].map {
-        Blob.save(_) match {
-          case 1 => Ok("")
-          case _ => NotFound("")
+        blob => {
+          Blob.save(blob)
+          Ok("")
         }
       }.recoverTotal {
         e => BadRequest(e.toString)

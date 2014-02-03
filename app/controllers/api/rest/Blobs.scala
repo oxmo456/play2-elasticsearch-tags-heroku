@@ -6,9 +6,7 @@ import utils._
 
 import play.api.libs.json.{JsNumber, Json}
 import services.ElasticSearch
-import play.api.Logger
-import scala.util.{Failure, Success}
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.ExecutionContext
 import ExecutionContext.Implicits.global
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 

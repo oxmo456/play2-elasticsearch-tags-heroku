@@ -5,7 +5,6 @@ import org.elasticsearch.client.transport.TransportClient
 import org.elasticsearch.common.transport.InetSocketTransportAddress
 import services.elasticsearch.ElasticSearchClient.{Search, Index}
 import akka.pattern.ask
-import play.api.Logger
 
 object ElasticSearchClient {
 
@@ -35,7 +34,6 @@ class ElasticSearchClient(host: String, port: Int) extends Actor {
       searchAgent ! search
     }
     case m => {
-      Logger.logger.debug(s"CLIENT $m")
     }
 
   }

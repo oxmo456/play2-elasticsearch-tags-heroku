@@ -19,8 +19,8 @@ class IndexAgent(client: TransportClient) extends Agent(client) {
           .execute()
           .actionGet()
       } match {
-        case Success(result) => Logger.logger.debug(s"SUCCESS $result")
-        case Failure(e) => Logger.logger.debug(s"FAILURE $e")
+        case Success(result) => ()
+        case Failure(e) => ()
       }
     }
 

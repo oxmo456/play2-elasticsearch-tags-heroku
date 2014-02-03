@@ -63,6 +63,12 @@ angular.module("app").service("BlobService", function BlobService($http) {
         });
     };
 
+    this.search = function (value) {
+        return $http.get("/api/blobs/search/" + value).then(function (response) {
+            return response.data;
+        });
+    };
+
 
 });
 
@@ -76,7 +82,15 @@ angular.module("app").service("TagService", function TagService($http) {
 
 });
 
-angular.module("app").controller("HomeController", function HomeController($scope) {
+angular.module("app").controller("HomeController", function HomeController($scope, BlobService) {
+
+    $scope.search = function (value) {
+        console.log("search", value);
+        BlobService.search(value).then(function (searchResult) {
+            console.log("search result", searchResult);
+            $scope.hits = searchResult.hits.hits;
+        });
+    };
 
 });
 

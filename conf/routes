@@ -12,6 +12,7 @@ POST    /api/blobs                  controllers.api.rest.Blobs.update
 DELETE  /api/blobs/:id              controllers.api.rest.Blobs.deleteById(id:Long)
 GET     /api/blobs                  controllers.api.rest.Blobs.findAll
 GET     /api/blobs/:id              controllers.api.rest.Blobs.findById(id:Long)
+GET     /api/blobs/search/:value    controllers.api.rest.Blobs.search(value:String)
 
 
 GET     /api/tags                   controllers.api.rest.Tags.findAll

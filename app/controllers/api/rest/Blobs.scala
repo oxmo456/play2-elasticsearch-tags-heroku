@@ -5,10 +5,18 @@ import models.Blob
 import utils._
 
 import play.api.libs.json.{JsNumber, Json}
+import services.ElasticSearch
+import play.api.Logger
+import scala.util.{Failure, Success}
+import scala.concurrent.{Future, ExecutionContext}
+import ExecutionContext.Implicits.global
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
 
 object Blobs extends Controller {
 
+
   implicit val blobWriter = Json.format[Blob]
+
 
   def create = Action {
     Blob.create() match {
@@ -30,11 +38,13 @@ object Blobs extends Controller {
     }).getOrElse(NotFound(""))
   }
 
+
   def update() = Action(parse.json) {
     request =>
       request.body.validate[Blob].map {
         blob => {
           Blob.save(blob)
+          ElasticSearch.indexBlob(blob)
           Ok("")
         }
       }.recoverTotal {
@@ -46,6 +56,13 @@ object Blobs extends Controller {
     Blob.deleteById(id) match {
       case 1 => Ok(Json.toJson("ok"))
       case _ => NotFound("")
+    }
+  }
+
+  def search(value: String) = Action.async {
+    val future = ElasticSearch.searchBlob(value).map(result => Ok(result.toString).as(JSON))
+    future.recover {
+      case e => BadRequest(e.toString)
     }
   }
 

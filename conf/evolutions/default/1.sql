@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS tags (
 CREATE TABLE IF NOT EXISTS blobs_tags (
   blob_id INTEGER,
   tag_id INTEGER,
-  FOREIGN KEY (blob_id) REFERENCES blobs(id),
+  FOREIGN KEY (blob_id) REFERENCES blobs(id) ON DELETE CASCADE,
   FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE,
   PRIMARY KEY (blob_id, tag_id)
 );

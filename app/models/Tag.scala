@@ -48,7 +48,7 @@ object Tag {
     }
   }
 
-  def findByBlobId(id: Long): Set[Tag] = {
+  def findByBlobId(id: Long): List[Tag] = {
     DB.withConnection {
       implicit connection =>
         SQL( """
@@ -58,7 +58,7 @@ object Tag {
                    FROM tags
                    LEFT JOIN blobs_tags ON blobs_tags.tag_id = tags.id
                    WHERE blobs_tags.blob_id = {blobId}
-             """).on('blobId -> id).as(tagRowParser *).toSet
+             """).on('blobId -> id).as(tagRowParser *)
     }
   }
 

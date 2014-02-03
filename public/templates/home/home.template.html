@@ -22,7 +22,7 @@
                 <div ng-if="blob.tags.length > 5" class="tag more">{{hit._source.tags.length - 5}} more tags</div>
             </td>
             <td>
-                <span ng-click="edit(blob)"
+                <span ng-click="edit(hit._id)"
                       style="cursor: pointer"
                       class="glyphicon glyphicon-edit"></span>
             </td>

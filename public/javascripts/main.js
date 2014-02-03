@@ -82,14 +82,16 @@ angular.module("app").service("TagService", function TagService($http) {
 
 });
 
-angular.module("app").controller("HomeController", function HomeController($scope, BlobService) {
+angular.module("app").controller("HomeController", function HomeController($scope, $location, BlobService) {
 
     $scope.search = function (value) {
-        console.log("search", value);
         BlobService.search(value).then(function (searchResult) {
-            console.log("search result", searchResult);
             $scope.hits = searchResult.hits.hits;
         });
+    };
+
+    $scope.edit = function (blobId) {
+        $location.path("/blobs/" + blobId);
     };
 
 });

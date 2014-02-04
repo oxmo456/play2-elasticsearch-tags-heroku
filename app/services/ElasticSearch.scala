@@ -1,14 +1,14 @@
 package services
 
 import play.api.Play
-import services.elasticsearch.{Query, Document, ElasticSearchClient}
+import services.elasticsearch.ElasticSearchClient
 import play.api.libs.concurrent.Akka
 import akka.actor.Props
 import akka.pattern.ask
 import models.Blob
 import org.elasticsearch.common.xcontent.XContentBuilder
 import org.elasticsearch.common.xcontent.XContentFactory._
-import services.elasticsearch.ElasticSearchClient.{Search, Index}
+import services.elasticsearch.ElasticSearchClient.{Document, Query, Search, Index}
 import play.api.Play.current
 import org.elasticsearch.action.search.SearchType
 import org.elasticsearch.index.query.{QueryBuilders, QueryBuilder}

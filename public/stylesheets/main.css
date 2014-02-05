@@ -18,6 +18,10 @@
     border-radius: 4px;
 }
 
+.tag.small{
+    font-size: 10px;
+}
+
 .tag.more {
     background-color: transparent;
     color: #898989;
@@ -37,6 +41,8 @@
     -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
     box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
 }
+
+
 
 .tags ul {
     margin: 0;

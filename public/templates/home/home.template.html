@@ -18,8 +18,7 @@
             <td>{{hit._id}}</td>
             <td>{{hit._source.name}}</td>
             <td>
-                <div ng-repeat="tag in hit._source.tags | limitTo:5" class="tag">{{tag}}</div>
-                <div ng-if="blob.tags.length > 5" class="tag more">{{hit._source.tags.length - 5}} more tags</div>
+                <div ng-repeat="tag in hit._source.tags" class="tag small">{{tag}}</div>
             </td>
             <td>
                 <span ng-click="edit(hit._id)"
